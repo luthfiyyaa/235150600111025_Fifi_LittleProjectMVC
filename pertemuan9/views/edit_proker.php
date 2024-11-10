@@ -1,9 +1,9 @@
 <?php
-session_start();
-if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
-    echo "Anda harus login untuk mengedit program kerja.";
-    exit;
-}
+// session_start();
+// if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+//     echo "Anda harus login untuk mengedit program kerja.";
+//     exit;
+// }
 ?>
 
 <!DOCTYPE html>

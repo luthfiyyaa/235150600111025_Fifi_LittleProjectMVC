@@ -1,6 +1,7 @@
 <?php
 
 require("config/koneksi_mysql.php");
+$pengurusBEM = new PengurusBEM($mysqli);
 
 class PengurusBEM 
 {
@@ -10,7 +11,6 @@ class PengurusBEM
     private string $jabatan;
     private string $foto;
     private string $password;
-    private $db;
 
     public function createModel(
         $nama = "",
@@ -29,58 +29,47 @@ class PengurusBEM
         $this->password = $password;
     }
 
+    public function __construct(mysqli $db)
+    {
+        $this->db = $db;
+    }
+
+
     public function fetchAllPengurusBEM()
     {
-        $result = $this->db->query("SELECT * FROM pengurus_bem");
+        global $mysqli;
+        $result = $mysqli->query("SELECT * FROM pengurus_bem");
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
     public function fetchOnePengurusBEM(string $nim)
     {
-        $query = "SELECT * FROM pengurus_bem WHERE nim = '$nim'";
-        $result = $this->db->query($query);
-        return $result->fetch_assoc();
+        global $mysqli;
+        $stmt = $mysqli->prepare("SELECT * FROM pengurus_bem WHERE nim = ?");
+        $stmt->bind_param("s", $nim);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc();
     }
 
-    public function insertPengurusBEM() 
-    {
-        global $db;
-        mysqli_connect("INSERT INTO pengurus_bem  VALUES ('$_POST[nama]', '$_POST[nim]', '$_POST[angkatan]', '$_POST[jabatan]', '$_POST[foto]', '$_POST[password]')");
-        mysqli_query("ssisss", $this->nama, $this->nim, $this->angkatan, $this->jabatan, $this->foto, $this->password);
-        // return $stmt->execute();
+    public function insertPengurusBEM() {
+    $stmt = $this->db->prepare("INSERT INTO pengurus_bem (nama, nim, angkatan, jabatan, foto, password) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssisss", $this->nama, $this->nim, $this->angkatan, $this->jabatan, $this->foto, $this->password);
+    return $stmt->execute();
     }
 
-    public function updatePengurusBEM($nim, $nama, $angkatan, $jabatan, $foto = null, $password = null)
+    public function updatePengurusBEM()
     {
-        // Mulai dengan query update dasar
-        $query = "UPDATE pengurus_bem SET nama = '$nama', angkatan = '$angkatan', jabatan = '$jabatan'";
-
-        if ($foto) {
-            $query .= ", foto = '$foto'";
-        }
-
-        if ($password) {
-            $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-            $query .= ", password = '$hashedPassword'";
-        }
-
-        $query .= " WHERE nim = '$nim'";
-
-        if ($this->db->query($query) === TRUE) {
-            echo "Data berhasil diperbarui!";
-        } else {
-            echo "Error: " . $query . "<br>" . $this->db->error;
-        }
+        global $mysqli;
+        $stmt = $mysqli->prepare("UPDATE pengurus_bem SET nama = ?, angkatan = ?, jabatan = ?, foto = ?, password = ? WHERE nim = ?");
+        $stmt->bind_param("sissss", $this->nama, $this->angkatan, $this->jabatan, $this->foto, $this->password, $this->nim);
+        return $stmt->execute();
     }
 
-    public function deletePengurusBEM($nim)
+    public function deletePengurusBEM()
     {
-        $query = "DELETE FROM pengurus_bem WHERE nim = '$nim'";
-
-        if ($this->db->query($query) === TRUE) {
-            echo "Data berhasil dihapus!";
-        } else {
-            echo "Error: " . $query . "<br>" . $this->db->error;
-        } 
+        global $mysqli;
+        $stmt = $mysqli->prepare("DELETE FROM pengurus_bem WHERE nim = ?");
+        $stmt->bind_param("s", $this->nim);
+        return $stmt->execute();
     }
 }

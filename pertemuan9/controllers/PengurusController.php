@@ -1,14 +1,16 @@
 <?php
 
 include_once("model/PengurusBEM.php");
+require("config/koneksi_mysql.php");
 
 class PengurusController 
 {
-    private $pengurusModel;
+    private PengurusBEM $pengurusBEM;
 
     public function __construct()
     {
-        $this->pengurusModel = new PengurusBEM();
+        global $mysqli;
+        $this->pengurusBEM = new PengurusBEM($mysqli);
     }
 
     public function viewRegister()
@@ -30,8 +32,8 @@ class PengurusController
             $targetFile = $targetDir . basename($foto['name']);
             move_uploaded_file($foto['tmp_name'], $targetFile);
 
-            $this->pengurusModel->createModel($nama, $nim, $angkatan, $jabatan, $targetFile, $password);
-            $this->pengurusModel->insertPengurusBEM();
+            $this->pengurusBEM->createModel($nama, $nim, $angkatan, $jabatan, $targetFile, $password);
+            $this->pengurusBEM->insertPengurusBEM();
 
             header("Location: index.php?action=viewLogin");
             exit();
@@ -49,11 +51,11 @@ class PengurusController
             $nim = $_POST['nim'];
             $password = $_POST['password'];
 
-            $pengurus = $this->pengurusModel->fetchOnePengurusBEM($nim);
+            $pengurus = $this->pengurusBEM->fetchOnePengurusBEM($nim);
             if ($pengurus && password_verify($password, $pengurus['password'])) {
                 session_start();
                 $_SESSION['user'] = $pengurus;
-                header("Location: index.php?action=viewListProker"); 
+                header("Location: views/list_proker.php");
                 exit();
             } else {
                 echo "Login gagal! NIM atau password salah.";

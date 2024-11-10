@@ -4,9 +4,9 @@ require("config/koneksi_mysql.php");
 
 class ProgramKerja 
 {
-    private int $nomorProgram;
+    private int $nomor;
     private string $nama;
-    private string $suratKeterangan;
+    private string $surat_keteranga;
 
     public function createModel(
         $nomorProgram = "",
@@ -17,6 +17,11 @@ class ProgramKerja
         $this->nomorProgram = $nomorProgram;
         $this->nama = $nama;
         $this->suratKeterangan = $suratKeterangan;
+    }
+
+    public function __construct(mysqli $db)
+    {
+        $this->db = $db;
     }
 
     public function fetchAllProgramKerja()
@@ -51,22 +56,25 @@ class ProgramKerja
         return $program;
     }
 
-    public function insertProgramKerja($nama, $suratKeterangan) 
+    public function insertProgramKerja() 
     {
-        global $conn;  
-
-        $query = "INSERT INTO program_kerja (nama, suratKeterangan) VALUES (?, ?)";
-        $stmt = mysqli_prepare($conn, $query);
-    
-        mysqli_stmt_bind_param($stmt, "ss", $nama, $suratKeterangan);
-    
-        if (mysqli_stmt_execute($stmt)) {
-            echo "Program kerja berhasil ditambahkan.";
-        } else {
-            echo "Terjadi kesalahan saat menambahkan program kerja: " . mysqli_error($conn);
+        if (!$this->db) {
+            throw new Exception("Koneksi database tidak tersedia");
         }
-    
-        mysqli_stmt_close($stmt);
+
+        $query = "INSERT INTO program_kerja (nomor, nama, surat_keteranga) VALUES (?, ?, ?)";
+        $stmt = $this->db->prepare($query);
+        
+        if (!$stmt) {
+            throw new Exception("Error preparing statement: " . $this->db->error);
+        }
+
+        $stmt->bind_param("ss", $this->nomor, $this->nama, $this->surat_keteranga);
+        
+        $result = $stmt->execute();
+        $stmt->close();
+        
+        return $result;
     }
 
     public function updateProgramKerja($nomorProgram, $nama, $suratKeterangan)

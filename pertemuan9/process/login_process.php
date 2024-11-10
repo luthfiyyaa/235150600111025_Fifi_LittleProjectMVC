@@ -12,7 +12,7 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
         $_SESSION['username'] = $username;
 
         // Redirect ke halaman yang diinginkan setelah login
-        header("Location: index.php?controller=ProgramKerja&action=viewListProker");
+        header("Location: index.php?controller=ProgramKerja&action=list");
         exit;
     } else {
         echo "Username atau password salah.";

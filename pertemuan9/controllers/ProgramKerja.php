@@ -48,7 +48,7 @@ class ProgramKerjaController
     public function viewListProker()
     {
         $this->checkLogin();
-        
+
         $programs = $this->programModel->fetchAllProgramKerja();
 
         include("views/list_proker.php");
@@ -58,17 +58,18 @@ class ProgramKerjaController
     {
         if (isset($_POST['nama']) && isset($_POST['suratKeterangan'])) {
         $nama = $_POST['nama'];
-        $suratKeterangan = $_POST['suratKeterangan'];
+        $suratKeterangan = $_POST['surat_keteranga'];
+        $nomorProgram = $_POST['nomor'];
 
-        $this->programModel->insertProgramKerja($nama, $suratKeterangan);
-
-        header("Location: index.php?controller=ProgramKerja&action=viewListProker");
+        $this->programModel->insertProgramKerja($nomor, $nama, $surat_keteranga);
+        require 'views/add_proker.php';
         exit;
-    }
+    } 
     }
 
     public function updateProker()
     {
+        global $nomorProgram;
         if (isset($_POST['nomorProgram']) && isset($_POST['nama']) && isset($_POST['suratKeterangan'])) {
             $nomorProgram = $_POST['nomorProgram'];
             $nama = $_POST['nama'];
@@ -76,22 +77,18 @@ class ProgramKerjaController
     
             $this->programModel->updateProgramKerja($nomorProgram, $nama, $suratKeterangan);
     
-            header("Location: index.php?controller=ProgramKerja&action=viewListProker");
+            header("Location: index.php?controller=ProgramKerja&action=list");
             exit;
+        } else {
+            $data = $this->programModel->fetchOneProgramKerja($nomorProgram);
+            require 'views/edit_proker.php';
         }
     }
 
     public function deleteProker()
     {
-        if (isset($_GET['nomorProgram'])) {
-            $nomorProgram = $_GET['nomorProgram'];
-    
-            $this->programModel->deleteProgramKerja($nomorProgram);
-    
-            header("Location: index.php?controller=ProgramKerja&action=viewListProker");
-            exit;
-        } else {
-            echo "Nomor Program tidak ditemukan.";
-        }
+        global $nomorProgram;
+        $this->programModel->deleteProgramKerja($nomorProgram);
+        header('Location: index.php?controller=ProgramKerja&action=list');
     }
 }

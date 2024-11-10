@@ -1,9 +1,17 @@
 <?php
-session_start();
-if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
-    echo "Anda harus login untuk melihat halaman ini.";
-    exit;
-}
+// session_start();
+// if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+//     echo "Anda harus login untuk melihat halaman ini.";
+//     exit;
+// }
+
+// Koneksi ke database
+require_once "../config/koneksi_mysql.php"; // pastikan koneksi sudah benar
+
+// Ambil data program kerja dari database
+$query = "SELECT * FROM program_kerja";
+$stmt = $mysqli->query($query);
+$programs = $stmt->fetch_assoc();
 ?>
 
 <!DOCTYPE html>
