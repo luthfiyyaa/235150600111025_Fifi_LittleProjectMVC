@@ -1,11 +1,22 @@
 <?php
-// session_start();
-// if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
-//     echo "Anda harus login untuk mengedit program kerja.";
-//     exit;
-// }
-?>
 
+include_once '../controllers/ProgramKerja.php';
+$controller = new ProgramKerjaController();
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $controller->updateProker();
+    header("Location: list_proker.php");
+    exit();
+}
+
+if (isset($_GET['nomor'])) {
+    $nomor = (int)$_GET['nomor'];
+    $programs = $controller->programModel->fetchOneProgramKerja($nomor);
+} else {
+    header("Location: list_proker.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -14,28 +25,21 @@
     <title>Edit Program Kerja</title>
 </head>
 <body>
-    <h1>Edit Program Kerja</h1>
+<body>
+    <div class="container">
+        <h2>Edit Program Kerja</h2>
+        <form action="edit_proker.php" method="POST">
+            <label for="nomor">Nomor Program:</label>
+            <input type="number" name="nomor" id="nomor" value="<?= htmlspecialchars($programs['nomor']) ?>" readonly> <br>
 
-    <?php if (isset($program)): ?>
-        <form action="index.php?controller=ProgramKerja&action=updateProker" method="POST">
-            <input type="hidden" name="nomorProgram" value="<?= $program['nomorProgram'] ?>">
+            <label for="nama">Nama Program:</label>
+            <input type="text" name="nama" id="nama" value="<?= htmlspecialchars($programs['nama']) ?>" required> <br>
 
-            <div>
-                <label for="nama">Nama Program</label>
-                <input type="text" name="nama" id="nama" value="<?= htmlspecialchars($program['nama']) ?>" required>
-            </div>
+            <label for="surat_keterangan">Surat Keterangan:</label>
+            <input type="text" name="surat_keteranga" id="surat_keterangan" value="<?= htmlspecialchars($programs['surat_keteranga']) ?>" required> <br>
 
-            <div>
-                <label for="suratKeterangan">Surat Keterangan</label>
-                <input type="text" name="suratKeterangan" id="suratKeterangan" value="<?= htmlspecialchars($program['suratKeterangan']) ?>" required>
-            </div>
-
-            <div>
-                <button type="submit">Perbarui Program</button>
-            </div>
+            <button type="submit">Update</button>
         </form>
-    <?php else: ?>
-        <p>Program tidak ditemukan.</p>
-    <?php endif; ?>
+    </div>
 </body>
 </html>

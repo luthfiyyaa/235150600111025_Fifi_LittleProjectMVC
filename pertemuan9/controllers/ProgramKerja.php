@@ -1,94 +1,99 @@
 <?php
 
-include_once("model/ProgramKerja.php");
+include_once("../model/ProgramKerja.php");
 
 class ProgramKerjaController 
 {
-    private $programModel;
+    public $programModel;
 
     public function __construct()
     {
         $this->programModel = new ProgramKerja();
     }
 
-    private function checkLogin()
-    {
-        if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
-            header("Location: login_view.php");
-            exit;
-        }
-    }
-
     public function viewAddProker()
     {
-        $this->checkLogin();
-
         include("views/add_proker.php");
     }
 
     public function viewEditProker()
     {
-        $this->checkLogin();
-
-        if (isset($_GET['nomorProgram'])) {
-            $nomorProgram = $_GET['nomorProgram'];
-    
-            $program = $this->programModel->fetchOneProgramKerja($nomorProgram);
-
-            if ($program) {
-                include("views/edit_proker.php");
-            } else {
-                echo "Program Kerja tidak ditemukan.";
-            }
-        } else {
-            echo "Nomor Program tidak ditemukan.";
-        }
+        include("../views/edit_proker.php");
     }
 
     public function viewListProker()
     {
-        $this->checkLogin();
-
         $programs = $this->programModel->fetchAllProgramKerja();
-
         include("views/list_proker.php");
     }
 
     public function addProker()
     {
-        if (isset($_POST['nama']) && isset($_POST['suratKeterangan'])) {
-        $nama = $_POST['nama'];
-        $suratKeterangan = $_POST['surat_keteranga'];
-        $nomorProgram = $_POST['nomor'];
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $nomor = $_POST['nomor'];
+            $nama = $_POST['nama'];
+            $surat_keteranga = $_POST['surat_keteranga'];
 
-        $this->programModel->insertProgramKerja($nomor, $nama, $surat_keteranga);
-        require 'views/add_proker.php';
-        exit;
-    } 
+            if ($this->programModel->insertProgramKerja($nomor, $nama, $surat_keteranga)) {
+                header("Location: ../views/list_proker.php");
+                exit();
+            } else {
+                echo "Gagal menambahkan program kerja!";
+            }
+        }
+        
     }
 
     public function updateProker()
     {
-        global $nomorProgram;
-        if (isset($_POST['nomorProgram']) && isset($_POST['nama']) && isset($_POST['suratKeterangan'])) {
-            $nomorProgram = $_POST['nomorProgram'];
+        if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['nomor'])) {
+            $nomor = $_POST['nomor'];
             $nama = $_POST['nama'];
-            $suratKeterangan = $_POST['suratKeterangan'];
-    
-            $this->programModel->updateProgramKerja($nomorProgram, $nama, $suratKeterangan);
-    
-            header("Location: index.php?controller=ProgramKerja&action=list");
-            exit;
-        } else {
-            $data = $this->programModel->fetchOneProgramKerja($nomorProgram);
-            require 'views/edit_proker.php';
+            $surat_keteranga = $_POST['surat_keteranga'];
+
+            if ($this->programModel->updateProgramKerja($nomor, $nama, $surat_keteranga)) {
+                header("Location: list_proker.php");
+            } else {
+                echo "Gagal memperbarui program kerja.";
+            }
         }
     }
 
     public function deleteProker()
     {
-        global $nomorProgram;
-        $this->programModel->deleteProgramKerja($nomorProgram);
-        header('Location: index.php?controller=ProgramKerja&action=list');
+        $nomor = $_POST['nomor'];
+
+        if ($this->programModel->deleteProgramKerja($nomor)) {
+            return true;
+        } else {
+            echo "Gagal menghapus program kerja!";
+            return false;
+        }
+    }
+
+    
+}
+
+if (isset($_GET['action'])) {
+    $controller = new ProgramKerjaController();
+
+    switch ($_GET['action']) {
+        case 'addProker':
+            $controller->addProker();
+            break;
+        case 'updateProker':
+            $controller->updateProker();
+            break;
+        case 'deleteProker':
+            $controller->deleteProker();
+            break;
+        case 'viewAddProker':
+            $controller->viewAddProker();
+            break;
+        case 'viewEditProker':
+            $controller->viewEditProker();
+            break;
+        default:
+            $controller->viewListProker();
     }
 }

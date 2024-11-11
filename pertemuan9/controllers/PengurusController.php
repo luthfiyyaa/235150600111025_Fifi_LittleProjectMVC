@@ -1,7 +1,6 @@
 <?php
 
-include_once("model/PengurusBEM.php");
-require("config/koneksi_mysql.php");
+include_once("../model/PengurusBEM.php");
 
 class PengurusController 
 {
@@ -62,5 +61,13 @@ class PengurusController
                 include("views/login_view.php");
             }
         }
+    }
+
+    public function logout()
+    {
+        session_start();
+        session_destroy();
+        header("Location: ../views/login_view.php");
+        exit();
     }
 }

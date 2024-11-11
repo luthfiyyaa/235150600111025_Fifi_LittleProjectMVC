@@ -1,6 +1,6 @@
 <?php
 
-require("config/koneksi_mysql.php");
+require("../config/koneksi_mysql.php");
 $pengurusBEM = new PengurusBEM($mysqli);
 
 class PengurusBEM 
@@ -52,9 +52,9 @@ class PengurusBEM
     }
 
     public function insertPengurusBEM() {
-    $stmt = $this->db->prepare("INSERT INTO pengurus_bem (nama, nim, angkatan, jabatan, foto, password) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssisss", $this->nama, $this->nim, $this->angkatan, $this->jabatan, $this->foto, $this->password);
-    return $stmt->execute();
+        $stmt = $this->db->prepare("INSERT INTO pengurus_bem (nama, nim, angkatan, jabatan, foto, password) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("ssisss", $this->nama, $this->nim, $this->angkatan, $this->jabatan, $this->foto, $this->password);
+        return $stmt->execute();
     }
 
     public function updatePengurusBEM()

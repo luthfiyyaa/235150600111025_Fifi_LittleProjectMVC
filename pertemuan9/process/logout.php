@@ -5,7 +5,12 @@ session_start();
 session_unset();
 session_destroy();
 
+require_once '../controllers/PengurusController.php';
+
+$pengurusController = new PengurusController();
+$pengurusController->logout();
+
 // Redirect ke halaman login
-header("Location: login_view.php");
+header("Location: index.php?action=viewLogin");
 exit;
-?>
+

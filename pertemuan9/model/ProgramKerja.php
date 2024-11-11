@@ -1,115 +1,69 @@
 <?php
 
-require("config/koneksi_mysql.php");
+require("../config/koneksi_mysql.php");
+$programs = new ProgramKerja();
 
 class ProgramKerja 
 {
     private int $nomor;
     private string $nama;
     private string $surat_keteranga;
+    private $db;
 
     public function createModel(
-        $nomorProgram = "",
+        $nomor = "",
         $nama = "",
-        $suratKeterangan = "",
+        $surat_keteranga = "",
     )
     {
-        $this->nomorProgram = $nomorProgram;
+        $this->nomor = $nomor;
         $this->nama = $nama;
-        $this->suratKeterangan = $suratKeterangan;
+        $this->surat_keteranga = $surat_keteranga;
     }
 
-    public function __construct(mysqli $db)
+    public function __construct()
     {
-        $this->db = $db;
+        global $mysqli;
+        $this->db = $mysqli;
     }
 
     public function fetchAllProgramKerja()
     {
-        global $conn;  
-
-        $query = "SELECT * FROM program_kerja";
-        $result = mysqli_query($conn, $query);
-
-        $programs = [];
-        while ($row = mysqli_fetch_assoc($result)) {
-            $programs[] = $row;
-        }
-        return $programs;
+        global $mysqli;
+        $stmt = $this->db->query("SELECT * FROM program_kerja");
+        return $stmt->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function fetchOneProgramKerja(int $nomorProgram)
+    public function fetchOneProgramKerja(int $nomor)
     {
-        global $conn;
-
-        $query = "SELECT * FROM program_kerja WHERE nomorProgram = ?";
-        $stmt = mysqli_prepare($conn, $query);
-
-        mysqli_stmt_bind_param($stmt, "i", $nomorProgram);
-        mysqli_stmt_execute($stmt);
-
-        $result = mysqli_stmt_get_result($stmt);
-        $program = mysqli_fetch_assoc($result);
-
-        mysqli_stmt_close($stmt);
-
-        return $program;
+        global $mysqli;
+        $stmt = $mysqli->prepare("SELECT * FROM program_kerja WHERE nomor = ?");
+        $stmt->bind_param("i", $nomor);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc();
     }
 
-    public function insertProgramKerja() 
+    public function insertProgramKerja($nomor, $nama, $surat_keteranga) 
     {
-        if (!$this->db) {
-            throw new Exception("Koneksi database tidak tersedia");
-        }
-
-        $query = "INSERT INTO program_kerja (nomor, nama, surat_keteranga) VALUES (?, ?, ?)";
-        $stmt = $this->db->prepare($query);
-        
-        if (!$stmt) {
-            throw new Exception("Error preparing statement: " . $this->db->error);
-        }
-
-        $stmt->bind_param("ss", $this->nomor, $this->nama, $this->surat_keteranga);
-        
-        $result = $stmt->execute();
-        $stmt->close();
-        
-        return $result;
+        $stmt = $this->db->prepare("INSERT INTO program_kerja (nomor, nama, surat_keteranga) VALUES (?, ?, ?)");
+        $stmt->bind_param("iss", $nomor, $nama, $surat_keteranga);
+        return $stmt->execute();
     }
 
-    public function updateProgramKerja($nomorProgram, $nama, $suratKeterangan)
+    public function updateProgramKerja($nomor, $nama, $surat_keteranga)
     {
-        global $conn;
-
-        $query = "UPDATE program_kerja SET nama = ?, suratKeterangan = ? WHERE nomorProgram = ?";
-        $stmt = mysqli_prepare($conn, $query);
-
-        mysqli_stmt_bind_param($stmt, "ssi", $nama, $suratKeterangan, $nomorProgram);
-
-        if (mysqli_stmt_execute($stmt)) {
-            echo "Program kerja berhasil diperbarui.";
-        } else {
-            echo "Terjadi kesalahan saat memperbarui program kerja: " . mysqli_error($conn);
-        }
-
-        mysqli_stmt_close($stmt);
+        global $mysqli;
+        $stmt = $mysqli->prepare("UPDATE program_kerja SET nama = ?, surat_keteranga = ? WHERE nomor = ?");
+        $stmt->bind_param("ssi", $nama, $surat_keteranga, $nomor);
+        return $stmt->execute();
     }
 
-    public function deleteProgramKerja($nomorProgram)
+    public function deleteProgramKerja($nomor)
     {
-        global $conn;
-
-        $query = "DELETE FROM program_kerja WHERE nomorProgram = ?";
-        $stmt = mysqli_prepare($conn, $query);
-
-        mysqli_stmt_bind_param($stmt, "i", $nomorProgram);
-
-        if (mysqli_stmt_execute($stmt)) {
-            echo "Program kerja berhasil dihapus.";
-        } else {
-            echo "Terjadi kesalahan saat menghapus program kerja: " . mysqli_error($conn);
-        }
-
-        mysqli_stmt_close($stmt); 
+        global $mysqli;
+        $stmt = $mysqli->prepare("DELETE FROM program_kerja WHERE nomor = ?");
+        $stmt->bind_param("i", $nomor);
+        return $stmt->execute();
     }
 }

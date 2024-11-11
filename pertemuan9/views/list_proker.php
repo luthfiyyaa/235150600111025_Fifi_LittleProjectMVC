@@ -1,17 +1,10 @@
 <?php
-// session_start();
-// if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
-//     echo "Anda harus login untuk melihat halaman ini.";
-//     exit;
-// }
-
-// Koneksi ke database
-require_once "../config/koneksi_mysql.php"; // pastikan koneksi sudah benar
-
-// Ambil data program kerja dari database
-$query = "SELECT * FROM program_kerja";
-$stmt = $mysqli->query($query);
-$programs = $stmt->fetch_assoc();
+include_once '../controllers/ProgramKerja.php';
+$controller = new ProgramKerjaController();
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nomor'])) {
+    $controller->deleteProker();
+}
+$programs = $controller->programModel->fetchAllProgramKerja();
 ?>
 
 <!DOCTYPE html>
@@ -27,31 +20,41 @@ $programs = $stmt->fetch_assoc();
     <table>
         <thead>
             <tr>
-                <th>No</th>
+                <th>Nomor Program</th>
                 <th>Nama Program</th>
                 <th>Surat Keterangan</th>
                 <th>Aksi</th>
             </tr>
         </thead>
         <tbody>
-            <?php
-            if (!empty($programs)) {
-                foreach ($programs as $index => $program) {
-                    echo "<tr>";
-                    echo "<td>" . ($index + 1) . "</td>";
-                    echo "<td>" . htmlspecialchars($program['nama']) . "</td>";
-                    echo "<td>" . htmlspecialchars($program['suratKeterangan']) . "</td>";
-                    echo "<td>
-                            <a href='edit_proker.php?nomorProgram=" . $program['nomorProgram'] . "'>Edit</a> | 
-                            <a href='delete_proker.php?nomorProgram=" . $program['nomorProgram'] . "'>Hapus</a>
-                          </td>";
-                    echo "</tr>";
-                }
-            } else {
-                echo "<tr><td colspan='4'>Data tidak tersedia.</td></tr>";
-            }
-            ?>
+        <?php if (!empty($programs)): ?>
+            <?php foreach ($programs as $program): ?>
+                <tr>
+                    <td><?= $program['nomor'] ?></td>
+                    <td><?= $program['nama'] ?></td>
+                    <td><?= $program['surat_keteranga'] ?></td>
+                    <td>
+                    <button><a href="edit_proker.php?nomor=<?= $program['nomor'] ?>">Edit</a></button>                    |
+                    <form action="" method="POST" style="display:inline;">
+                        <input type="hidden" name="nomor" value="<?= $program['nomor'] ?>">
+                        <button type="submit">Delete</button>
+                    </form>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <tr>
+                <td colspan="4">Belum ada data proker.</td>
+            </tr>
+        <?php endif; ?>
         </tbody>
     </table>
+
+    <button>
+            <a href="add_proker.php" style="text-decoration: none;">Add Program Kerja</a>
+    </button>
+    <button>
+            <a href="../process/logout.php" style="text-decoration: none;">Logout</a>
+    </button>
 </body>
 </html>

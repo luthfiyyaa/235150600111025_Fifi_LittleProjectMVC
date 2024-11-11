@@ -1,30 +1,3 @@
-<?php
-// session_start();
-// if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
-//     echo "Anda harus login untuk menambahkan program kerja.";
-//     exit;
-// }
-
-// Koneksi ke database
-require_once "../config/koneksi_mysql.php"; // pastikan koneksi sudah benar
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Ambil data dari form
-    $nama = $_POST['nama'];
-    $suratKeterangan = $_POST['surat_keteranga'];
-    $nomorProgram = $_POST['nomor'];
-
-    // Query untuk memasukkan data ke dalam tabel program kerja
-    $query = "INSERT INTO program_kerja (nomor, nama, surat_keteranga) VALUES (?, ?)";
-    $stmt = $pdo->prepare($query);
-    $stmt->execute([$nomorprogram, $nama, $suratKeterangan]);
-
-    // Setelah data ditambahkan, alihkan ke halaman daftar program kerja
-    header("Location: list_proker.php");
-    exit();
-}
-?>
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -35,8 +8,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <h1>Tambah Program Kerja</h1>
 
-    <form action="list_proker.php" method="POST">
-    <div>
+    <form action="../controllers/ProgramKerja.php?action=addProker" method="POST">
+        <div>
             <label for="nomor">Nomor Program</label>
             <input type="text" name="nomor" id="nomor" required>
         </div>
@@ -45,11 +18,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <input type="text" name="nama" id="nama" required>
         </div>
         <div>
-            <label for="suratKeterangan">Surat Keterangan</label>
-            <input type="text" name="suratKeterangan" id="suratKeterangan" required>
+            <label for="surat_keteranga">Surat Keterangan</label>
+            <input type="text" name="surat_keteranga" id="surat_keteranga" required>
         </div>
         <div>
             <button type="submit">Tambah Program</button>
+            <button><a href="list_proker.php">List Program</a></button>
         </div>
     </form>
 </body>
